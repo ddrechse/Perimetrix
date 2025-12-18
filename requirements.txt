@@ -1,0 +1,4 @@
+# Required Python libraries for the Sentinel POC
+
+# For connecting to the Oracle Database
+oracledb
