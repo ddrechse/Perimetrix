@@ -9,7 +9,7 @@ CREATE TABLE behavior_patterns (
     -- The dimensions represent normalized values for:
     -- [Speed, Duration_in_Zone, Distance_to_Road_Centerline]
     behavior_vector VECTOR(3, FLOAT32)
-);
+) TABLESPACE USERS;
 
 COMMIT;
 

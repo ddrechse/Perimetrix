@@ -1,5 +1,6 @@
--- Phase 1, Step 3: Implement the "Legacy" Alert Logic
--- This script demonstrates the "false positive" problem by generating an alert for a non-threatening event.
+-- Phase 1, Step 3: Demonstrate Baseline Geofencing
+-- This script demonstrates the current effective geofencing capability that detects boundary breaches.
+-- Phase 2 will enhance this with contextual intelligence to distinguish routine events from genuine risks.
 
 -- 1. Insert a dummy school zone
 -- A rectangular polygon representing a school zone
@@ -40,10 +41,11 @@ INSERT INTO tracking_events (parolee_id, timestamp, speed_mph, heading, location
 
 COMMIT;
 
--- 3. Run the standard spatial query to find alerts
--- This query finds any ping within 1000 yards of a school, ignoring context like speed.
+-- 3. Run the standard spatial query to detect boundary breaches
+-- This query finds any ping within 1000 yards of a school using proven geofencing capabilities.
+-- Phase 2 will enhance this with behavioral context (speed, dwell time, etc.).
 -- NOTE: 914 meters is approximately 1000 yards.
-PROMPT 'Running legacy query to find alerts based only on distance...';
+PROMPT 'Running baseline geofencing query to detect boundary breaches...';
 
 SELECT
     t.event_id,
@@ -57,7 +59,7 @@ WHERE
     SDO_WITHIN_DISTANCE(t.location, r.shape, 'distance=914 unit=M') = 'TRUE'
     AND r.zone_type = 'SCHOOL';
 
-PROMPT 'Query finished. The row returned represents the "false positive" alert.';
+PROMPT 'Query finished. The row returned demonstrates effective boundary detection.';
 
 -- Cleanup (optional)
 -- DELETE FROM tracking_events;

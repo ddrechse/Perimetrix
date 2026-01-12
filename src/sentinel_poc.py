@@ -95,9 +95,9 @@ def analyze_event(
             print(f"  Best Match: '{best_match}' (Similarity Score: {similarity_score:.4f})")
 
             if "Safe" in best_match and similarity_score < SAFE_PATTERN_SIMILARITY_THRESHOLD:
-                print(f"  DECISION: Alert SUPPRESSED (Score is below threshold of {SAFE_PATTERN_SIMILARITY_THRESHOLD})")
+                print(f"  DECISION: Alert DEPRIORITIZED (Score is below threshold of {SAFE_PATTERN_SIMILARITY_THRESHOLD})")
             else:
-                print("  DECISION: Alert TRIGGERED!")
+                print("  DECISION: Alert ELEVATED for officer attention!")
 
         except oracledb.DatabaseError as e:
             print(f"  Database Error: {e}")
@@ -114,9 +114,9 @@ def main():
         conn = get_db_connection()
         print("Database connection successful.")
 
-        # --- SCENARIO 1: The False Positive ---
+        # --- SCENARIO 1: Routine Event (Can be Deprioritized) ---
         # A person driving past the school at a reasonable speed.
-        # Should be identified as a "Safe Traffic Detour".
+        # Should be identified as a "Safe Traffic Detour" and deprioritized.
         analyze_event(
             conn=conn,
             parolee_id=101,
@@ -124,9 +124,9 @@ def main():
             speed=45, dwell=1, proximity=5
         )
 
-        # --- SCENARIO 2: The True Positive ---
+        # --- SCENARIO 2: Genuine Risk Event (Requires Officer Attention) ---
         # A person stopped inside the zone, off the main road.
-        # Should be identified as "High Risk Loitering".
+        # Should be identified as "High Risk Loitering" and elevated.
         analyze_event(
             conn=conn,
             parolee_id=102,

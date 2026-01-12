@@ -1,8 +1,8 @@
 # Sentinel - Intelligent Geospatial Monitoring POC
 
-This project is a Proof of Concept (POC) for an intelligent geospatial monitoring system, as described in `SentinelPOC.md` and `DemoPlan.md`.
+This project is a Proof of Concept (POC) for an intelligent geospatial monitoring system.
 
-It uses **Oracle Database 23ai** to combine traditional geospatial queries with **AI Vector Search** to reduce false-positive alerts from monitoring systems. The system can distinguish between a user driving through a restricted zone (a "safe detour") and a user loitering in one (a "high-risk" event).
+It uses **Oracle Database 23ai** to unlock the contextual intelligence potential of traditional geospatial monitoring systems. By combining native Spatial capabilities with **AI Vector Search**, the system enhances existing geofencing with behavioral context, enabling it to distinguish between routine events (like a user driving through a restricted zone) and genuine risk behaviors (like loitering in one). This optimization helps buffer officers from false positives while elevating true threats from the noise.
 
 ## Prerequisites
 
@@ -55,8 +55,8 @@ Connect to your database and run the scripts in the following sequence:
 Once the database is initialized, you can run the Python script to see the complete POC in action.
 
 The script will simulate three scenarios:
-1.  A "false positive" event (driving past a school).
-2.  A "true positive" event (loitering near the school).
+1.  A routine event that can be safely deprioritized (driving past a school).
+2.  A genuine risk event requiring officer attention (loitering near the school).
 3.  An event far outside any restricted zone.
 
 Execute the script:
@@ -75,7 +75,7 @@ Database connection successful.
   Raw Data: Speed=45mph, Dwell=1min, Proximity=5ft
   Normalized Vector: [0.750, 0.017, 0.100]
   Best Match: 'Safe Traffic Detour' (Similarity Score: 0.0001)
-  DECISION: Alert SUPPRESSED (Score is below threshold of 0.5)
+  DECISION: Alert DEPRIORITIZED (Score is below threshold of 0.5)
 --- Analyzing Event for Parolee 102 ---
   Raw Data: Speed=1mph, Dwell=25min, Proximity=45ft
   Normalized Vector: [0.017, 0.417, 0.900]

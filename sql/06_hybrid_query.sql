@@ -1,6 +1,6 @@
 -- Phase 3, Step 6: The Hybrid Query (Spatial + Vector)
 -- This is the core deliverable of the POC.
--- It finds geofence violations but then scores them against our behavior patterns.
+-- It detects geofence breaches and then enriches them with behavioral context through vector similarity.
 
 -- 1. Simulate a new incoming event.
 -- This event is a parolee stuck in traffic in the school zone.
@@ -42,7 +42,7 @@ ORDER BY
     similarity_score ASC;
 
 PROMPT 'Query finished. The event should have a much lower score (higher similarity) for "Safe Traffic Detour".';
-PROMPT 'This allows us to suppress the alert.';
+PROMPT 'This contextual intelligence allows us to deprioritize routine events while maintaining visibility.';
 
 -- Cleanup
 -- DELETE FROM tracking_events WHERE parolee_id = 456;
