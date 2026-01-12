@@ -7,8 +7,8 @@ It uses **Oracle Database 23ai** to unlock the contextual intelligence potential
 ## Prerequisites
 
 - Python 3.8+
-- Access to an Oracle Database 23ai instance (the [Always Free tier](https://www.oracle.com/cloud/free/) is sufficient).
-- Oracle Client libraries installed on your machine.
+- Docker installed and running
+- SQLcl (Oracle SQL Command Line) - [Download here](https://www.oracle.com/database/sqldeveloper/technologies/sqlcl/)
 
 ## 1. Setup
 
@@ -18,29 +18,79 @@ git clone <YOUR_GITHUB_REPO_URL>
 cd sentinel
 ```
 
-### b) Configure Python Environment
+### b) Start Oracle Database 23ai Docker Container
+
+Pull and run the Oracle Database 23ai Free Docker container:
+
+```bash
+docker run -d \
+  --name oracle23ai \
+  -p 1521:1521 \
+  -e ORACLE_PASSWORD=YourPassword123 \
+  gvenzl/oracle-free:latest
+```
+
+**Notes:**
+- The container may take 1-2 minutes to fully start
+- Default database name: `FREEPDB1`
+- Default admin user: `SYSTEM`
+- Replace `YourPassword123` with your preferred password
+
+Check container status:
+```bash
+docker logs oracle23ai
+```
+
+Wait for the message "DATABASE IS READY TO USE!" before proceeding.
+
+### c) Configure Python Environment
 Install the required Python package:
 ```bash
 pip install -r requirements.txt
 ```
 
-### c) Configure Database Connection
-The Python script loads database credentials from environment variables to avoid hardcoding them. Set the following variables in your terminal:
+### d) Configure Database Connection
+The Python script loads database credentials from environment variables. For the Docker container, set:
 
 ```bash
-export DB_USER="your_oracle_username"
-export DB_PASSWORD="your_oracle_password"
-export DB_DSN="your_database_connect_string"
+export DB_USER="SYSTEM"
+export DB_PASSWORD="YourPassword123"  # Use the password from step b
+export DB_DSN="localhost:1521/FREEPDB1"
 ```
-The `DB_DSN` is your database's connection string (e.g., `localhost:1521/FREEPDB1`).
 
 ## 2. Database Initialization
 
-The SQL scripts in the `/sql` directory must be run in order to set up the schema, indexes, and reference data. You can run them using a tool like SQL*Plus or SQLcl.
+The SQL scripts in the `/sql` directory must be run in order to set up the schema, indexes, and reference data.
 
-Connect to your database and run the scripts in the following sequence:
+### Using SQLcl
 
+Connect to your Docker database using SQLcl:
+
+```bash
+sql SYSTEM/YourPassword123@localhost:1521/FREEPDB1
 ```
+
+### What These Scripts Do
+
+The scripts build up the POC in three phases:
+
+**Phase 1: Spatial Foundation**
+- `01_setup_schema.sql` - Creates tables for restricted zones and GPS tracking events with spatial geometry columns
+- `02_configure_spatial_metadata.sql` - Registers geometry columns with Oracle Spatial and creates R-tree indexes for fast queries
+- `03_legacy_alert_logic.sql` - Demonstrates baseline geofencing: detects when GPS pings breach zone boundaries
+
+**Phase 2: Vector Intelligence**
+- `04_setup_vector_table.sql` - Creates table to store behavioral patterns as 3D vectors [speed, dwell_time, proximity]
+- `05_seed_knowledge_base.sql` - Seeds reference patterns: "Safe Traffic Detour" vs "High Risk Loitering"
+
+**Phase 3: Hybrid Query**
+- `06_hybrid_query.sql` - Combines spatial + vector search to distinguish routine events from genuine risks
+
+### Running the Scripts
+
+Once connected, run the scripts in sequence:
+
+```sql
 @sql/01_setup_schema.sql
 @sql/02_configure_spatial_metadata.sql
 @sql/03_legacy_alert_logic.sql
@@ -48,7 +98,10 @@ Connect to your database and run the scripts in the following sequence:
 @sql/05_seed_knowledge_base.sql
 @sql/06_hybrid_query.sql
 ```
-*Note: The last two scripts will produce output demonstrating the underlying queries. You can ignore or examine this as you see fit.*
+
+Type `exit` to disconnect from SQLcl when finished.
+
+*Note: Scripts 05 and 06 will produce output demonstrating the hybrid queries. You can examine or ignore this output.*
 
 ## 3. Running the Demonstration
 
