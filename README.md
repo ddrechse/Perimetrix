@@ -1,4 +1,4 @@
-# Sentinel - Intelligent Geospatial Monitoring POC
+# Perimetrix - Intelligent Geospatial Monitoring POC
 
 This project is a Proof of Concept (POC) for an intelligent geospatial monitoring system.
 
@@ -15,7 +15,7 @@ It uses **Oracle Database 23ai** to unlock the contextual intelligence potential
 ### a) Clone the Repository
 ```bash
 git clone <YOUR_GITHUB_REPO_URL>
-cd sentinel
+cd 
 ```
 
 ### b) Start Oracle Database 23ai Docker Container
@@ -114,7 +114,7 @@ The script will simulate three scenarios:
 
 Execute the script:
 ```bash
-python src/sentinel_poc.py
+python src/perimetrix_poc.py
 ```
 
 ### Expected Output
@@ -122,7 +122,7 @@ python src/sentinel_poc.py
 You should see output similar to the following:
 
 ```
-Starting Sentinel POC Demonstration...
+Starting perimetrix POC Demonstration...
 Database connection successful.
 --- Analyzing Event for Parolee 101 ---
   Raw Data: Speed=45mph, Dwell=1min, Proximity=5ft
