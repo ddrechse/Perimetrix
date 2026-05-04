@@ -1,11 +1,21 @@
 # Perimetrix + Argus — Behavioral Vector POC
 
-This repository demonstrates two real-world implementations of the same Oracle Database 26ai converged architecture: **Oracle Spatial + AI Vector Search in a single SQL query**.
+Traditional rule-based alert systems have a false-positive problem: every event that crosses a threshold fires an alert, regardless of context. A parolee driving past a school at 45 mph triggers the same alarm as one loitering in the bushes for 30 minutes. A museum visitor standing near a security camera looks identical to one systematically mapping the building.
+
+This repository demonstrates how **Oracle Database 26ai** solves that problem by combining two capabilities in a single SQL query: **Oracle Spatial** (to confirm an event is in a monitored zone) and **AI Vector Search** (to classify the behavior behind it). The result is a system that doesn't just ask "is this person here?" — it asks "what are they doing, and does it match a known risk pattern?"
+
+Two independent use cases are implemented side by side to show that the architecture is domain-agnostic. The SQL types, vector operations, and query structure are identical. What changes is the feature engineering — the decision about which real-world signals to measure and how to normalize them into a vector.
 
 | Use Case | System | Domain | Spatial Operator |
 |---|---|---|---|
 | Parolee monitoring | **Perimetrix** | Outdoor GPS tracking | `SDO_WITHIN_DISTANCE` |
 | Museum security | **Argus** | Indoor sensor grid | `SDO_INSIDE` |
+
+| Dimension | Perimetrix | Argus |
+|---|---|---|
+| 1 | speed / 60 mph | zone\_coverage (0–1) |
+| 2 | dwell\_time / 60 min | dwell\_time / 60 min |
+| 3 | road\_proximity\_ft / 50 | camera\_proximity\_ratio (0–1) |
 
 The key CS insight: both systems use `VECTOR(3, FLOAT32)` and `VECTOR_DISTANCE(COSINE)` — but the three dimensions encode completely different domain signals. The architecture is reusable; the feature engineering is domain-specific.
 
@@ -67,6 +77,10 @@ sql SYSTEM/YourPassword123@localhost:1521/FREEPDB1
 
 ### Perimetrix (parolee monitoring)
 
+Perimetrix monitors GPS ankle bracelet data for parolees who are restricted from entering school zones. The legacy system fired an alert any time a parolee's location fell within 914 meters of a school — which meant a parolee driving past on the highway triggered the same response as someone sitting in a parked car near the playground for 25 minutes.
+
+The hybrid system adds behavioral context. Each GPS ping is encoded as a three-dimensional vector: how fast is the person moving, how long have they been in the zone, and how close are they to the road? That vector is scored against two reference patterns — `Safe Traffic Detour` and `High Risk Loitering` — and the closest match drives the alert decision.
+
 **Phase 1 — Spatial Foundation**
 
 ```sql
@@ -106,6 +120,10 @@ Runs the full hybrid query: `SDO_WITHIN_DISTANCE` filters to zone breaches, then
 ---
 
 ### Argus (museum security)
+
+Argus monitors visitor behavior inside museum galleries using an indoor sensor grid. The legacy system flagged anyone who lingered in a gallery for too long — which produced constant noise from enthusiastic art lovers and missed the real threat: someone quietly mapping camera positions.
+
+The hybrid system classifies behavior using three signals computed from the visitor's sensor trail: what fraction of the gallery they covered, how long they stayed, and what fraction of their movement pings were nearest to a security camera versus a piece of artwork. That last dimension is the key differentiator — it's computed live by querying the `argus_zone_features` table via `SDO_GEOM.SDO_DISTANCE`, not stored as a pre-calculated value. The vector is scored against `Casual Gallery Browse` and `Surveillance Casing` to drive the security decision.
 
 **Phase 1 — Spatial Foundation**
 
