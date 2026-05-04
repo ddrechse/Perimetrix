@@ -10,3 +10,6 @@ venv/
 
 # Environment
 .env
+
+# Claude Code
+CLAUDE.md
